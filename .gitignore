@@ -1,3 +1,6 @@
 *.class
 *.html
 /out
+out/production/Battleship/battleship/Board.class
+out/production/Battleship/battleship/Game.class
+out/production/Battleship/battleship/Point.class
