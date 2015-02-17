@@ -4,12 +4,14 @@ import scala.collection.mutable
 
 class Board {
     private val Size = 10
-    private val ships = mutable.MutableList[Ship]()
+    private val ships = mutable.HashMap[Point, Ship]()
 
     // Squares internal data structure (each square is taken by ship(hit) or empty(miss))
     private val sqs = (for (i <- 0 until Size; j <- 0 until Size) yield new Point(i, j) ) map (a => a -> false) toMap
     private val squares = collection.mutable.Map[Point, Boolean]() ++= sqs // (mutable map for performance)
 
+    def getSize(): Int = Size
+    def getShips(): collection.Map[Point, Ship] = ships
     def isHit(pos: Point): Boolean = squares.getOrElse(pos, false)
 
     def placeShip(ship: Ship, pos: Point) : Boolean = {
@@ -24,7 +26,7 @@ class Board {
       // one of ship squares might be already taken by another ship:
       else if (shipSquare.exists(isHit(_))) false
       else {
-        ships += ship
+        ships.put(pos, ship)
         shipSquare.foreach(squares.update(_, true))
         true
       }
@@ -34,6 +36,13 @@ class Board {
 class Point(xc: Int, yc: Int) {
   val x: Int = xc
   val y: Int = yc
+
   override def toString: String = "(" + x + ", " + y + ")"
+
+  override def equals(o: Any) = {
+    o != null && o.isInstanceOf[Point] && o.asInstanceOf[Point].x == this.x && o.asInstanceOf[Point].y == this.y
+  }
+
+  override def hashCode() = (x.hashCode() * 10) * y.hashCode()
 }
 
