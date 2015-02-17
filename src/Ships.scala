@@ -5,9 +5,9 @@ object Direction extends Enumeration {
   val HORIZONTAL, VERTICAL = Value
 }
 
-abstract class Ship(dir: Direction.Value, length: Int) {
-  val Direction = dir
-  val Length = length
+abstract class Ship(dir: Direction.Value, len: Int) {
+  val direction = dir
+  val length = len
 }
 
 case class Carrier(dir: Direction.Value) extends Ship(dir, 5)

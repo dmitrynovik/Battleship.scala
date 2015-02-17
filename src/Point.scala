@@ -10,5 +10,5 @@ class Point(xc: Int, yc: Int) {
     o != null && o.isInstanceOf[Point] && o.asInstanceOf[Point].x == this.x && o.asInstanceOf[Point].y == this.y
   }
 
-  override def hashCode() = (x.hashCode() * BoardDimensions.getSize()) * y.hashCode()
+  override def hashCode() = (x.hashCode() * Game.getBoardSize()) * y.hashCode()
 }

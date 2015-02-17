@@ -4,52 +4,62 @@ import scala.collection.mutable
 
 object SquareState extends Enumeration {
   type SquareState = Value
-  val MISS, OCCUPIED, HIT = Value
+  val UNKNOWN, MISS, OCCUPIED, HIT = Value
 }
 
-object BoardDimensions {
-  def getSize(): Int = 10
-}
-
-class Board {
-    private val ships = mutable.HashMap[Point, Ship]()
+abstract class Board {
 
     // Squares internal data structure (assume 0,0 is top left). Fill as empty:
-    private val sqs = (for (i <- 0 until BoardDimensions.getSize();
-                            j <- 0 until BoardDimensions.getSize() )
-                       yield new Point(i, j) ) map (a => a -> SquareState.MISS) toMap
-    private val squares = collection.mutable.Map[Point, SquareState.Value]() ++= sqs // (mutable map for performance)
+    private val sqs = (for (i <- 0 until Game.getBoardSize();
+                            j <- 0 until Game.getBoardSize() )
+                       yield new Point(i, j) ) map (a => a -> defaultSquareState()) toMap
 
-    def getShips(): collection.Map[Point, Ship] = ships
+    protected val squares = collection.mutable.Map[Point, SquareState.Value]() ++= sqs // (mutable map for performance)
 
-    def placeShip(ship: Ship, pos: Point) : Boolean = {
-      // generate ship coordinates vector:
-      val shipSquare = ship.Direction match {
-        case Direction.HORIZONTAL => for (i <- 0 until ship.Length) yield new Point(pos.x + i, pos.y)
-        case Direction.VERTICAL => for (i <- 0 until ship.Length) yield new Point(pos.x, pos.y + i)
-      }
+    def updateState(pos: Point, state: SquareState.Value) = squares.update(pos, state)
+    def defaultSquareState(): SquareState.Value
+    def hits: Int = squares.values.count(v => v == SquareState.HIT)
+}
 
-      // bound check:
-      if (shipSquare.exists(pt => pt.x < 0 || pt.y < 0 || pt.x >= BoardDimensions.getSize() || pt.y >= BoardDimensions.getSize())) false
-      // one of ship squares might be already taken by another ship:
-      else if (shipSquare.exists(isHit)) false
-      else {
-        ships.put(pos, ship)
-        shipSquare.foreach(squares.update(_, SquareState.OCCUPIED))
-        true
-      }
+class UserBoard extends Board {
+  override def defaultSquareState = SquareState.MISS
+  private val ships = mutable.HashMap[Point, Ship]()
+
+  def getShips(): collection.Map[Point, Ship] = ships
+
+  def placeShip(ship: Ship, pos: Point) : Boolean = {
+    // generate ship coordinates vector:
+    val shipSquare = ship.direction match {
+      case Direction.HORIZONTAL => for (i <- 0 until ship.length) yield new Point(pos.x + i, pos.y)
+      case Direction.VERTICAL => for (i <- 0 until ship.length) yield new Point(pos.x, pos.y + i)
     }
 
-  private def isHit: (Point) => Boolean = squares.getOrElse(_, SquareState.MISS) != SquareState.MISS
-
-  def hit(pos: Point): Boolean = {
-    val hit = isHit(pos)
-    if (hit) {
-      squares.update(pos, SquareState.HIT)
+    // bound check:
+    if (shipSquare.exists(pt => pt.x < 0 || pt.y < 0 || pt.x >= Game.getBoardSize() || pt.y >= Game.getBoardSize())) false
+    // overlap check:
+    else if (shipSquare.exists(pt => squares.get(pt) != Some(SquareState.MISS))) false
+    else {
+      // all good, place ship:
+      ships.put(pos, ship)
+      shipSquare.foreach(squares.update(_, SquareState.OCCUPIED))
+      true
     }
-    hit
   }
 
-  def isGameOver(): Boolean = squares.exists(_._2 == SquareState.HIT) && !squares.exists(_._2 == SquareState.OCCUPIED)
+  def hit(pos: Point): Boolean = {
+    val square = squares.getOrElse(pos, SquareState.MISS)
+    if (square == SquareState.OCCUPIED || square == SquareState.HIT) {
+      squares.update(pos, SquareState.HIT)
+      true
+    } else {
+      squares.update(pos, SquareState.MISS)
+      false
+    }
+  }
+}
+
+class AttacksBoard extends Board {
+
+  override def defaultSquareState = SquareState.UNKNOWN
 }
 
