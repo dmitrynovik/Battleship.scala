@@ -14,7 +14,8 @@ abstract class Board {
                             j <- 0 until Game.getBoardSize() )
                        yield new Point(i, j) ) map (a => a -> defaultSquareState()) toMap
 
-    protected val squares = collection.mutable.Map[Point, SquareState.Value]() ++= sqs // (mutable map for performance)
+    // We don't generally like mutables, but squares map is updated too often:
+    protected val squares = collection.mutable.Map[Point, SquareState.Value]() ++= sqs
 
     def updateState(pos: Point, state: SquareState.Value) = squares.update(pos, state)
     def defaultSquareState(): SquareState.Value
@@ -23,7 +24,7 @@ abstract class Board {
 
 class UserBoard extends Board {
   override def defaultSquareState = SquareState.MISS
-  private val ships = mutable.HashMap[Point, Ship]()
+  private val ships = mutable.Map[Point, Ship]()
 
   def getShips(): collection.Map[Point, Ship] = ships
 

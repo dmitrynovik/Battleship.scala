@@ -1,0 +1,9 @@
+HOW TO RUN CODE
+- Required: Scala 2.10
+- The main file (API implementation): see Game.scala
+- Unit tests: GameTest.scala (Required: Junit-4.10, Scalatest 2.10-1.9.1)
+- Produced and tested in ItelliJ IDEA
+
+IMPLEMENTATION NOTES:
+- Mutable collections  are used in the game for better performance (for instance, squares map is updated too often)
+It is technically possible rewriting code using immutable data structures only: it will execute slower, although for this particular game this is not critical.

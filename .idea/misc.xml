@@ -6,5 +6,13 @@
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
+  <component name="ScaladocSettings">
+    <option name="outputDir" value="C:\Scala x86 2.10\eclipse\workspace\Battleship" />
+    <option name="additionalFlags" value="" />
+    <option name="maxHeapSize" value="" />
+    <option name="docTitle" value="Battleship documentation" />
+    <option name="verbose" value="false" />
+    <option name="openInBrowser" value="false" />
+  </component>
 </project>
 
